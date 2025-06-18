@@ -1,12 +1,26 @@
-export const TaskGallery = ({ task }) => {
-  return (
-    <div className="bg-white rounded-2xl shadow-xl p-6 space-y-4">
-      <h3 className="text-xl font-bold text-[#374151]">Your Task</h3>
-      <div className="text-gray-700">
-        <p><strong>Name:</strong> {task.name}</p>
-        <p><strong>Due:</strong> {task.date}</p>
-        <p><strong>Priority:</strong> {task.priority}</p>
+import React from 'react';
+
+export const TaskGallery = ({ tasks }) => (
+  <div className="space-y-6">
+    <h3 className="text-2xl font-bold text-[#374151] text-center">
+      New Task Gallery
+    </h3>
+
+    {tasks.map((task, idx) => (
+      <div
+        key={idx}
+        className="bg-white border border-gray-200 rounded-xl shadow p-4 space-y-1"
+      >
+        <p>
+          <span className="font-semibold text-[#374151]">Name:</span> {task.name}
+        </p>
+        <p>
+          <span className="font-semibold text-[#374151]">Due Date:</span> {task.date}
+        </p>
+        <p>
+          <span className="font-semibold text-[#374151]">Priority:</span> {task.priority}
+        </p>
       </div>
-    </div>
-  );
-};
+    ))}
+  </div>
+);

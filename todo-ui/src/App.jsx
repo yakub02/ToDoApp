@@ -1,10 +1,11 @@
+import React from 'react';
 import { AddTaskButton } from './components/AddTaskButton';
 
 function App() {
   return (
-    <div>
+  
       <AddTaskButton />
-    </div>
+    
   );
 }
 
