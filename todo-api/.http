@@ -1,0 +1,18 @@
+### Variables
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### The basic request
+GET {{baseUrl}}
+
+### The basic request
+GET {{baseUrl}}/tasks
+
+### create task
+POST {{baseUrl}}/tasks
+Content-Type: {{contentType}}
+
+{
+  "title": "Dodělat bakalářku",
+  "priority": "high"
+}
