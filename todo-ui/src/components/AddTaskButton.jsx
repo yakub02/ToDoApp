@@ -1,70 +1,60 @@
 import React, { useState } from 'react';
-import { TaskCard } from './TaskCard';
-import { TaskGallery } from './TaskGallery';
-import { motion } from 'framer-motion';
+import { motion }        from 'framer-motion';
+import TaskCard          from './TaskCard';
+import TaskGallery       from './TaskGallery';
 
-export const AddTaskButton = () => {
-  const [showTaskForm, setShowTaskForm] = useState(false);
-  const [tasks, setTasks]           = useState([]);       // holds all submitted tasks
+export default function AddTaskButton() {
+  const [formVisible, setFormVisible] = useState(false);
+  const [tasks,       setTasks]       = useState([]);
 
-  const handleClick      = () => setShowTaskForm(true);
-  const handleCloseForm  = () => setShowTaskForm(false);
-
-  // Append the new task to our array
-  const handleSubmit = (taskData) => {
-    setTasks(prev => [...prev, taskData]);
-  };
+  const handleAdd    = () => setFormVisible(true);
+  const handleCancel = () => setFormVisible(false);
+  const handleSubmit = (data) => setTasks(prev => [...prev, data]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 overflow-visible">
-      <div className="flex w-full max-w-4xl px-4 space-x-8">
-        {/* ── LEFT PANEL (form) ── */}
-        <motion.div
-          initial={{ x: 0 }}
-          animate={tasks.length > 0 ? { x: -200 } : { x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-3/4 max-w-md bg-white shadow-xl rounded-2xl overflow-visible"
-        >
-          <div className="flex flex-col p-6 sm:p-8">
-            <div className="text-2xl font-bold text-center text-[#374151] pb-4">
-              To Do List
-            </div>
-            <div className="text-base sm:text-lg text-center text-[#374151]">
-              Start with creating your first task.
-            </div>
+    // Only a fixed-width container — no min-h-screen or centering here
+    <div className="relative w-[900px]">
+      {/* LEFT PANEL */}
+      <motion.div
+        initial={{ left: '50%', x: '-50%' }}
+        animate={tasks.length > 0 ? { left: 0, x: 0 } : {}}
+        transition={{ duration: 0.5 }}
+        className="absolute top-0 w-[450px] bg-white shadow-xl rounded-2xl overflow-visible"
+      >
+        <div className="p-6 sm:p-8 space-y-4">
+          <h2 className="text-2xl font-bold text-center text-[#374151]">
+            To Do List
+          </h2>
+          <p className="text-center text-[#374151]">
+            Start with creating your first task.
+          </p>
 
-            <div className="flex justify-end pt-6">
-              <button
-                onClick={handleClick}
-                className="bg-[#7e22ce] text-white w-full font-bold text-base p-3 rounded-lg hover:bg-purple-800 active:scale-95 transition-transform"
-              >
-                ➕ Add Task
-              </button>
-            </div>
-
-            {showTaskForm && (
-              <div className="pt-6 overflow-visible">
-                <TaskCard
-                  onClose={handleCloseForm}
-                  onSubmit={handleSubmit}
-                />
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* ── RIGHT PANEL (gallery) ── */}
-        {tasks.length > 0 && (
-          <motion.div
-            initial={{ x: 200, opacity: 0 }}
-            animate={{ x: 0,   opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="flex-1 bg-white shadow-xl rounded-2xl p-6 sm:p-8 overflow-visible"
+          <button
+            onClick={handleAdd}
+            className="mt-4 bg-[#7e22ce] text-white w-full py-3 rounded-lg font-bold hover:bg-purple-800 transition"
           >
-            <TaskGallery tasks={tasks} />
-          </motion.div>
-        )}
-      </div>
+            ➕ Add Task
+          </button>
+
+          {formVisible && (
+            <div className="mt-6 overflow-visible">
+              <TaskCard onClose={handleCancel} onSubmit={handleSubmit} />
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* RIGHT PANEL */}
+      {tasks.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="absolute top-0 left-[470px] w-[450px] bg-white shadow-xl rounded-2xl p-6 sm:p-8 overflow-visible"
+        >
+          <TaskGallery tasks={tasks} />
+        </motion.div>
+      )}
     </div>
   );
-};
+}

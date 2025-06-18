@@ -1,12 +1,11 @@
 import React from 'react';
-import { AddTaskButton } from './components/AddTaskButton';
+import AddTaskButton from './components/AddTaskButton';
 
-function App() {
+export default function App() {
   return (
-  
-      <AddTaskButton />
     
+    <div className="min-h-screen flex items-start justify-center bg-gray-50 pt-[20px]">
+      <AddTaskButton />
+    </div>
   );
 }
-
-export default App;
