@@ -1,43 +1,59 @@
 // src/components/AddTaskButton.jsx
 import React, { useState, useEffect } from 'react'
-import * as Dialog      from '@radix-ui/react-dialog'
-import { motion }       from 'framer-motion'
-import TaskCard         from './TaskCard'
-import TaskGallery      from './TaskGallery'
+import axios             from 'axios'
+import * as Dialog       from '@radix-ui/react-dialog'
+import { motion }        from 'framer-motion'
+import TaskCard          from './TaskCard'
+import TaskGallery       from './TaskGallery'
+
+const API = axios.create({
+  baseURL: 'http://localhost:3000', // your NestJS server
+  headers: { 'Content-Type': 'application/json' }
+})
 
 export default function AddTaskButton() {
-  // 1) Initialize tasks from localStorage (lazy initializer)
-  const [tasks, setTasks] = useState(() => {
-    try {
-      const raw = localStorage.getItem('tasks')
-      return raw ? JSON.parse(raw) : []
-    } catch {
-      return []
-    }
-  })
-
   const [formVisible, setFormVisible] = useState(false)
+  const [tasks,       setTasks]       = useState([])
   const [editingIdx,  setEditingIdx]  = useState(null)
 
-  // 2) Save to localStorage whenever tasks change
+  // load on mount
   useEffect(() => {
-    try {
-      localStorage.setItem('tasks', JSON.stringify(tasks))
-    } catch {}
-  }, [tasks])
+    API.get('/tasks')
+      .then(res => setTasks(res.data))
+      .catch(console.error)
+  }, [])
 
   const handleAdd       = ()   => setFormVisible(true)
   const handleCancelAdd = ()   => setFormVisible(false)
-  const handleCreate    = data => setTasks(prev => [...prev, data])
-  const handleDelete    = idx  => setTasks(prev => prev.filter((_,i)=>i!==idx))
-  const handleEditClick = idx  => setEditingIdx(idx)
-  const handleCloseEdit = ()   => setEditingIdx(null)
-  const handleSaveEdit  = data => {
-    setTasks(prev => prev.map((t,i) => i===editingIdx ? data : t))
-    setEditingIdx(null)
+
+  const handleCreate = data => {
+    API.post('/tasks', data)
+      .then(res => setTasks(prev => [...prev, res.data]))
+      .catch(console.error)
   }
 
-  // offset to center the left panel on first render
+  const handleDelete = idx => {
+    const task = tasks[idx]
+    API.delete(`/tasks/${task.id}`)
+      .then(() => setTasks(prev => prev.filter((_,i) => i!==idx)))
+      .catch(console.error)
+  }
+
+  const handleEditClick = idx => setEditingIdx(idx)
+  const handleCloseEdit = ()   => setEditingIdx(null)
+
+  const handleSaveEdit = data => {
+    const task = tasks[editingIdx]
+    API.patch(`/tasks/${task.id}`, data)       // ← using PATCH now
+      .then(res => {
+        setTasks(prev =>
+          prev.map((t,i) => i===editingIdx ? res.data : t)
+        )
+        setEditingIdx(null)
+      })
+      .catch(console.error)
+  }
+
   const centerOffset = 225
 
   return (
@@ -87,11 +103,15 @@ export default function AddTaskButton() {
       </div>
 
       {/* Radix Dialog for Edit */}
-      <Dialog.Root open={editingIdx !== null} onOpenChange={open => !open && handleCloseEdit()}>
+      <Dialog.Root
+        open={editingIdx !== null}
+        onOpenChange={open => !open && handleCloseEdit()}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm" />
           <Dialog.Content
-            className="fixed top-1/2 left-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-xl p-6"
+            className="fixed top-1/2 left-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2
+                       bg-white rounded-2xl shadow-xl p-6"
           >
             <Dialog.Title className="text-xl font-bold mb-4">Edit Task</Dialog.Title>
             {editingIdx !== null && (
